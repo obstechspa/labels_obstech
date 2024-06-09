@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "labels_obstech"
+description = "Produce labels in bulk for brother printer"
+readme = "README.md"
+authors = [
+  { name="Régis Lachaume", email="regis.lachaume@gmail.com" },
+]
+requires-python = ">=3.9"
+dynamic=["dependencies", "classifiers", "version"]
+
+[project.scripts]
+make_telescope_labels = "labels_obstech:make_telescope_labels"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+classifiers = {file = ["classifiers.txt"]}
+version = {attr = "labels_obstech.__version__"}
