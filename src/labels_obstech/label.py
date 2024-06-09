@@ -128,5 +128,3 @@ def make_telescope_labels() -> None:
                 'telescope', 
                 hwid=hwid, owner=owner, queue=queue, roof=roof  
             )
-
-make_telescope_labels()
