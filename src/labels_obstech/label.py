@@ -9,7 +9,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-def get_resource(path):
+
+def get_resource(path: str) -> Path:
 
     from importlib import resources
     from pathlib import Path
@@ -17,12 +18,14 @@ def get_resource(path):
     root = resources.files(__name__)
     return Path(root) / path
 
+
 def make_label(
     hardware: str, 
     hwid:str, 
     filename: str = "{hardware}-{hwid}.lbx", 
     **kwargs
-):
+) -> Path:
+
     """Generate labels for brother printers.
 
 hardware:
@@ -45,14 +48,14 @@ filename:
     if not path.exists():    
         path = Path(hardware)
         
-
     kwargs = dict(hardware=hardware, hwid=hwid, **kwargs)
     
     filename = filename.format(**kwargs)
     if '/' in filename:
         filename = filename.split('/')[-1]
+    lbx_file = Path(filename)
 
-    with ZipFile(filename, 'w', compression=ZIP_DEFLATED) as out:
+    with ZipFile(lbx_file, 'w', compression=ZIP_DEFLATED) as out:
 
         for file in path.glob('*'):
 
@@ -67,7 +70,8 @@ filename:
 
             out.writestr(name, contents)
 
-    return filename
+    return lbx_file
+
 
 def download_sheet(
     sheet_id: str, 
@@ -106,25 +110,27 @@ def download_sheet(
 
     # Call the Sheets API
 
-    sheet = service.spreadsheets()
-    result = (
-        sheet.values()
-        .get(spreadsheetId=sheet_id, range=range_name)
-        .execute()
-    )
+    sheets = service.spreadsheets()
+    sheet = sheets.values().get(spreadsheetId=sheet_id, range=range_name)
+    result = sheet.execute()
     values = result.get("values", [])
 
     return values
 
-def make_telescope_labels() -> None:
+def make_telescope_labels() -> list[Path]:
 
     sheet_id = '1rgqsUifjIKhl6pXm7DFsNiQsGiZKPDvuPoQ98Z6DuKc'
-    range_id = "Telescope queues!A2:D"
+    range_id = "Telescope queues!A3:D"
     values = download_sheet(sheet_id, range_id)
+
+    lbx_files = []
 
     for hwid, owner, queue, roof in values:
         if hwid and owner and queue and roof:
-            make_label(
+            lbx_file = make_label(
                 'telescope', 
-                hwid=hwid, owner=owner, queue=queue, roof=roof  
+                hwid=hwid, owner=owner, queue=queue, roof=roof 
             )
+            lbx_files.append(lbx_file)
+
+    return lbx_files
