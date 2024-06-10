@@ -117,7 +117,7 @@ def download_sheet(
 
     return values
 
-def make_telescope_labels() -> list[Path]:
+def make_telescope_labels() -> None:
 
     sheet_id = '1rgqsUifjIKhl6pXm7DFsNiQsGiZKPDvuPoQ98Z6DuKc'
     range_id = "Telescope queues!A3:D"
@@ -131,6 +131,7 @@ def make_telescope_labels() -> list[Path]:
                 'telescope', 
                 hwid=hwid, owner=owner, queue=queue, roof=roof 
             )
+            print(f"Making label file {lbx_file} for HWID={hwid}")
             lbx_files.append(lbx_file)
 
-    return lbx_files
+    # return lbx_files
