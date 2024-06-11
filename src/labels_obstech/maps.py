@@ -84,8 +84,8 @@ def building_map(buildings: Table, telescopes: Table, building: str) -> None:
         else:
             x1 = x
             y1 = y
-            r = r + l
-        
+            r = sqrt(r**2 + l**2)
+
         if mount == '2xF/AZ':
             for li in [-L, L]:
                 circle = plt.Circle((x1, y1 + li), r, color='g', alpha=.3) 
@@ -142,5 +142,5 @@ def make_building_maps() -> None:
 
     # Building map and location
 
-    for building in [2, 7, 8]:
+    for building in [1, 2, 7, 8]:
         building_map(buildings, telescopes, building)
