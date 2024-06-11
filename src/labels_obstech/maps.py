@@ -1,7 +1,12 @@
 from labels_obstech import *
 from astropy.table import Table
-from matplotlib import pylab as plt
 from math import cos, sin, pi, sqrt
+
+import matplotlib
+matplotlib.use('pgf')
+from matplotlib import pylab as plt
+matplotlib.rcParams['pgf.preamble'] = r'\usepackage{hyperref} \hypersetup{colorlinks=true,urlcolor=red}'
+matplotlib.rcParams['pgf.texsystem'] = 'pdflatex'
 
 from .utils import download_sheet
 
@@ -23,14 +28,13 @@ def building_map(buildings: Table, telescopes: Table, building: str) -> None:
         
         x0, y0, x, y = row['X0'], row['Y0'], row['X'], row['Y']
 
-        color = 'k'
+        color = 'k' if row['Building'] != 'main' else 'b'
         if row['Building'] == str(building):
             color = 'r'
             width, depth = x, y
             door_x1, door_x2 = row['x1'], row['x2']
             angle = row['angle']
-            print(width, depth, door_x1, door_x2)
- 
+            queue = row['queue'] 
         if row['shape'] == 'rect':
             artist = plt.Rectangle(
                     (x0, y0), x, y, angle=row['angle'], color=color
@@ -46,8 +50,10 @@ def building_map(buildings: Table, telescopes: Table, building: str) -> None:
     # dowload telescope list
     tab = telescopes
 
-    tab = tab[(tab['building'] == str(building)) & (tab['status'] == 'active')]
- 
+    s = tab['status']
+    b = tab['building']
+    tab = tab[(b == str(building)) & ((s == 'empty') | (s ==  'active'))]
+
     # building outline
 
     ax2.plot(
@@ -69,6 +75,9 @@ def building_map(buildings: Table, telescopes: Table, building: str) -> None:
         else:
             artist = plt.Rectangle((x - d/2, y - d/2), d, d, color=(.5,.5,.5))
         ax2.add_artist(artist)
+
+        if row['status'] == 'empty':
+            continue
 
         # telescope turn radius
 
@@ -95,20 +104,36 @@ def building_map(buildings: Table, telescopes: Table, building: str) -> None:
             ax2.add_artist(circle)
 
         kw = dict(va='center', ha='center', fontsize=12)
+        kw2 = dict(va='center', ha='center', fontsize=8)
+        hwid = row['HWID']
+        owner = row['owner']
         if row['section'] == 'disk':
-            ax2.text(x1 - 0.35, y1 - 0.35, row['HWID'], **kw, rotation=-45)
+            dist = -0.15 if angle < 0 else 0.35
+            dist2 = dist + 0.15
+            ax2.text(x1 - dist, y1 - dist, hwid, **kw, rotation=-45)
+            ax2.text(x1 - dist2, y1 - dist2, owner, **kw2, rotation=-45)
         else:
-            ax2.text(x, y - d/2 - 0.2, row['HWID'], **kw) 
+            ax2.text(x, y - d/2 - 0.2, hwid, **kw) 
+            ax2.text(x, y - d/2 - 0.45, owner, **kw2)
+
+    if int(building) == 6:
+        y0 = 7*1.22 + .65
+        dy = depth - y0
+        rect = plt.Rectangle((0, y0), width, dy, color='y')
+        ax2.add_artist(rect)
+        ax2.text(width/2, y0 + dy/2, 'ExoAnalytics', **kw)
 
     ax2.axis('off')
-    ax2.set_ylim(-0.2, 14 +0.2)
+    ax2.set_ylim(-0.2, 14.42 +0.2)
     fig.subplots_adjust(
         left=0.005, right=.995,bottom=0.005, top=.995,
         wspace=.005
     )
-    fig.suptitle(f'Building {building}', fontsize=16)
+        
+    url = f'https://obstech.org/helpdesk/scp/tickets.php?queue={queue}'
+    fig.suptitle(f'\\href{{{url}}}{{Building {building}}}', fontsize=16)
 
-    fig.savefig(f'building-{building}-map.pdf')
+    fig.savefig(f'building-{int(building):02}-map.pdf')
 
 def make_building_maps() -> None:
 
@@ -142,5 +167,5 @@ def make_building_maps() -> None:
 
     # Building map and location
 
-    for building in [1, 2, 7, 8]:
+    for building in range(1, 12):
         building_map(buildings, telescopes, building)

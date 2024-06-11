@@ -31,9 +31,6 @@ def download_sheet(
     token_file = token_file.expanduser()
     credentials_file = credentials_file.expanduser()
 
-    print(token_file)
-    print(credentials_file)
-
     creds = None
     if token_file.exists():
         creds = Credentials.from_authorized_user_file(str(token_file), SCOPES)
