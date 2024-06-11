@@ -84,7 +84,7 @@ def building_map(buildings: Table, telescopes: Table, building: str) -> None:
         else:
             x1 = x
             y1 = y
-            r = sqrt(r**2 + l**2)
+            r = r + l
         
         if mount == '2xF/AZ':
             for li in [-L, L]:
