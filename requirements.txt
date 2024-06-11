@@ -1,2 +1,4 @@
 google_spreadsheet
 google-auth-oauthlib
+matplotlib
+astropy

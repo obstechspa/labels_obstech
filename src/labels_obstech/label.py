@@ -3,21 +3,7 @@
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-
-
-def get_resource(path: str) -> Path:
-
-    from importlib import resources
-    from pathlib import Path
-
-    root = resources.files(__name__)
-    return Path(root) / path
-
+from .utils import download_sheet, get_resource
 
 def make_label(
     hardware: str, 
@@ -111,7 +97,10 @@ def download_sheet(
     # Call the Sheets API
 
     sheets = service.spreadsheets()
-    sheet = sheets.values().get(spreadsheetId=sheet_id, range=range_name)
+    sheet = sheets.values().get(
+        spreadsheetId=sheet_id, 
+        range=range_name,
+    )
     result = sheet.execute()
     values = result.get("values", [])
 
@@ -133,5 +122,3 @@ def make_telescope_labels() -> None:
             )
             print(f"Making label file {lbx_file} for HWID={hwid}")
             lbx_files.append(lbx_file)
-
-    # return lbx_files

@@ -14,6 +14,7 @@ dynamic=["dependencies", "classifiers", "version"]
 
 [project.scripts]
 make_telescope_labels = "labels_obstech:make_telescope_labels"
+make_building_maps = "labels_obstech:make_building_maps"
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}

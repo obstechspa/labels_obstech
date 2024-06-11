@@ -1,5 +1,5 @@
-# results
-*.lbx
+# vim
+.*.swp
 
 # python env
 env/*
