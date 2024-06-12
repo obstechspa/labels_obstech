@@ -18,6 +18,7 @@ def building_map(buildings: Table, telescopes: Table, building: str) -> None:
     ax1.set_aspect('equal')
     ax2.set_aspect('equal')
 
+    queue_url = 'https://obstech.org/helpdesk/scp/tickets.php?queue={queue}'
 
     # Plot general map highlighting the building
    
@@ -106,15 +107,18 @@ def building_map(buildings: Table, telescopes: Table, building: str) -> None:
         kw = dict(va='center', ha='center', fontsize=12)
         kw2 = dict(va='center', ha='center', fontsize=8)
         hwid = row['HWID']
+        url = queue_url.format(queue=row['queue'])
+        hwid = f"\\href{{{url}}}{{{hwid}}}"
+
         owner = row['owner']
         if row['section'] == 'disk':
             dist = -0.15 if angle < 0 else 0.35
             dist2 = dist + 0.15
-            ax2.text(x1 - dist, y1 - dist, hwid, **kw, rotation=-45)
-            ax2.text(x1 - dist2, y1 - dist2, owner, **kw2, rotation=-45)
+            ax2.text(x1, y1 - d/2 - 0.2, hwid, **kw)
+            ax2.text(x1, y1 - d/2 - 0.4, owner, **kw2)
         else:
             ax2.text(x, y - d/2 - 0.2, hwid, **kw) 
-            ax2.text(x, y - d/2 - 0.45, owner, **kw2)
+            ax2.text(x, y - d/2 - 0.4, owner, **kw2)
 
     if int(building) == 6:
         y0 = 7*1.22 + .65
