@@ -67,9 +67,20 @@ def make_telescope_labels() -> None:
     lbx_files = []
 
     for hwid, owner, queue, roof in values:
+
         if hwid and owner and queue and roof:
+
+            hwid = hwid.strip()
+            owner = owner.strip()
+            queue = queue.strip()
+            try:
+                roof = f"B{int(roof)}"
+            except:
+                ...
+
             lbx_file = make_label(
                 'telescope', 
+                filename = "{hardware}-{roof}-{hwid}.lbx", 
                 hwid=hwid, owner=owner, queue=queue, roof=roof 
             )
             print(f"Making label file {lbx_file} for HWID={hwid}")
